@@ -1,0 +1,17 @@
+#!/bin/bash
+if [ 't' != "$( emacsclient --eval t 2> /dev/null )" ] ; then
+   [ "$!" == '-1' ] || echo  fresh emacs server
+   unset DISPLAY
+   nohup /usr/bin/emacs -daemon &> ~/.emacs-server.log
+fi
+`dirname $0`/bless-emacs-server-with-xauthority -qq
+exit 0
+
+:<NOTE
+Because if you do this inside an X11 session you get this warning in the .emacs-server.log I have unset DISPLAY.
+
+Warning: due to a long standing Gtk+ bug
+http://bugzilla.gnome.org/show_bug.cgi?id=85715
+Emacs might crash when run in daemon mode and the X11 connection is unexpectedly lost.
+Using an Emacs configured with --with-x-toolkit=lucid does not have this problem.
+NOTE

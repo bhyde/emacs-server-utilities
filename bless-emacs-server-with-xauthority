@@ -1,0 +1,16 @@
+#!/bin/bash
+
+nevermind(){
+    [ "$1" == '-qq' ] || echo "Can not bless the emacs server with xauth: $*"
+    exit 1
+}
+
+[ 't' == "$( emacsclient --eval t 2> /dev/null )" ] \
+                                  || nevermind 'no emacs server to bless'
+[ "$DISPLAY" != '' ]              || nevermind 'no X11 display'
+[ "$SSH_CLIENT" != '' ]           || nevermind 'not currently connected via ssh'
+xauth nlist >~/.xauth-for-merge   || nevermind 'xauth nlist failed'
+R=$( emacsclient --eval '(call-process-shell-command "xauth nmerge ~/.xauth-for-merge")' )
+[ '0' == "$R" ]                   || nevermind 'adding authority failed'
+
+[ "$1" == '-q' -o "$1" == '-qq' ] || echo "success"
